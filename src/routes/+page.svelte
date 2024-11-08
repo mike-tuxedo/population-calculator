@@ -60,7 +60,7 @@
 		</div>
 	</div>
 
-	<div class="tablewrapper text-center w-full px-6 mt-4" style="max-height: calc(100vh - 380px); overflow: auto;">
+	<div class="tablewrapper text-center w-full px-6 mt-4" style="max-height: calc(100vh - 420px); overflow: auto;">
 		<table class="w-full">
 			<tbody>
 				<tr class="sticky top-0" style="background: #fff">
