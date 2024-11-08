@@ -27,7 +27,7 @@
 </script>
 
 <div class="max-w-3xl mx-auto">
-	<div class="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-3 p-6">
+	<div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3 px-6">
 		<div>
 			<label for="first-name" class="block text-sm/6 font-medium">KIDS (per adult)</label>
 			<div class="mt-2">
@@ -60,7 +60,7 @@
 		</div>
 	</div>
 
-	<div class="tablewrapper text-center w-full p-6" style="max-height: 40vh; overflow: auto;">
+	<div class="tablewrapper text-center w-full px-6 mt-4" style="max-height: calc(100vh - 380px); overflow: auto;">
 		<table class="w-full">
 			<tbody>
 				<tr class="sticky top-0" style="background: #fff">
