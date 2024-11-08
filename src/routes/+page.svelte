@@ -14,15 +14,27 @@
 
 		for (let i = 1; i < generations; i++) {
 			const currentGenerationPopulation = result[i - 1].currentGenerationPopulation * kids;
-			console.log(result[i - 1].population);
 			const population = result[i - 1].population + currentGenerationPopulation;
 			result.push({ population, currentGenerationPopulation });
 		}
 		return result;
 	});
+	let lastThreePopulation = $derived.by(() => {
+		if (generations === 1) {
+			return start;
+		} else if (generations === 2) {
+			return start + populationPerGeneration[generations - 1].currentGenerationPopulation;
+		} else {
+			console.log(populationPerGeneration[generations - 1].currentGenerationPopulation, populationPerGeneration[generations - 2].currentGenerationPopulation, populationPerGeneration[generations - 3].currentGenerationPopulation);
+			return populationPerGeneration[generations - 1].currentGenerationPopulation + populationPerGeneration[generations - 2].currentGenerationPopulation + populationPerGeneration[generations - 3].currentGenerationPopulation;
+		}
+
+	});
+
 
 	$effect(() => {
-		console.log('populationPerGeneration changed', populationPerGeneration.length);
+		console.log('Generations', populationPerGeneration.length);
+		console.log('Total Population', lastThreePopulation);
 	});
 </script>
 
@@ -60,13 +72,16 @@
 		</div>
 	</div>
 
-	<div class="tablewrapper text-center w-full px-6 mt-4" style="max-height: calc(100vh - 420px); overflow: auto;">
+	<div
+		class="tablewrapper text-center w-full px-6 mt-4"
+		style="max-height: calc(100vh - 460px); overflow: auto;"
+	>
 		<table class="w-full">
 			<tbody>
 				<tr class="sticky top-0" style="background: #fff">
 					<th class="p-2">Generation</th>
-					<th class="p-2">Actual population</th>
-					<th class="p-2">Total population</th>
+					<th class="p-2">New humans per generation</th>
+					<th class="p-2">Total humans ever born</th>
 				</tr>
 				{#each populationPerGeneration.reverse() as population, i}
 					<tr>
@@ -86,10 +101,8 @@
 	</div>
 
 	<p class="w-full text-3xl text-center font-bold p-6" style="overflow-wrap: break-word;">
-		{populationPerGeneration[populationPerGeneration.length - 1].population.toLocaleString(
-			'de-DE',
-			{ maximumFractionDigits: 0 }
-		)} humans in {(generations - 1) * birthAge} years
+		The total population after {(generations - 1)*birthAge} years is {lastThreePopulation.toLocaleString('de-DE', { maximumFractionDigits: 0 })} humans.
+		<span class="block text-sm font-normal text-gray-500 mt-2">- last three generations count -</span>
 	</p>
 </div>
 
