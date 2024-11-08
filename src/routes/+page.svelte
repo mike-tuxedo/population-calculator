@@ -56,7 +56,7 @@
 			</tr>
 			{#each populationPerGeneration.reverse() as population, i}
 				<tr>
-					<td class="p-2">{i+1}</td>
+					<td class="p-2">{generations - i}</td>
 					<td class="p-2">{population.currentGenerationPopulation.toLocaleString('de-DE', { maximumFractionDigits: 0 })}</td>
 					<td class="p-2">{population.population.toLocaleString('de-DE', { maximumFractionDigits: 0 })}</td>
 				</tr>
