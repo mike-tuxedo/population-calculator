@@ -36,16 +36,14 @@
 		}
 	});
 
-	/**
-	 * @type {ApexCharts}
-	 */
 	let chart = $state();
 
 	$effect(() => {
 		if (chart) {
 			const seriesData = populationPerGeneration
 				.map((gen, index) => {
-					return gen.currentGenerationPopulation + (populationPerGeneration[index + 1]?.currentGenerationPopulation || 0) + (populationPerGeneration[index + 2]?.currentGenerationPopulation || 0);
+					const gencount = gen.currentGenerationPopulation + (populationPerGeneration[index + 1]?.currentGenerationPopulation || 0) + (populationPerGeneration[index + 2]?.currentGenerationPopulation || 0);
+					return gencount;
 				})
 				.filter((val) => val !== null)
 				.reverse();
@@ -55,22 +53,22 @@
 					categories: populationPerGeneration
 						.slice(-seriesData.length)
 						.map((gen) => {
-							const years = generations*birthAge;
-							const curYears = gen.generation*birthAge;
+							const years = generations * birthAge;
+							const curYears = gen.generation * birthAge;
 							if (years >= 600) {
-								if (curYears%100 === 0) {
-									return gen.generation*birthAge;
+								if (curYears % 100 === 0) {
+									return gen.generation * birthAge;
 								} else {
-									return '';
+									return "";
 								}
 							} else if (years >= 300) {
-								if (curYears%40 === 0) {
-									return gen.generation*birthAge;
+								if (curYears % 40 === 0) {
+									return gen.generation * birthAge;
 								} else {
-									return '';
+									return "";
 								}
 							} else {
-								return gen.generation*birthAge;
+								return gen.generation * birthAge;
 							}
 						})
 						.reverse(),
@@ -99,23 +97,18 @@
 			],
 			xaxis: {
 				categories: [],
-				labels: {
-					formatter: function (value) {
-						return 0;
-					},
-				},
 			},
 			yaxis: {
 				labels: {
 					formatter: function (value) {
-						return value.toLocaleString("en-US");
+						return value.toLocaleString("de-DE", { maximumFractionDigits: 0 });
 					},
 				},
 			},
 			tooltip: {
 				y: {
 					formatter: function (value) {
-						return value.toLocaleString("en-US");
+						return value.toLocaleString("de-DE", { maximumFractionDigits: 0 });
 					},
 				},
 			},
@@ -134,33 +127,33 @@
 
 <div class="container mx-auto p-4 space-y-6">
 	<Card>
-		<CardHeader>
+		<CardHeader class="p-3">
 			<CardTitle>Population Growth Calculator</CardTitle>
 		</CardHeader>
-		<CardContent>
+		<CardContent class="p-3">
 			<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-				<div>
-					<label for="kids" class="block text-sm font-medium mb-2">KIDS (per adult)</label>
-					<Input type="number" id="kids" bind:value={kids} min="0" step="1" />
+				<div class="grid grid-cols-2 items-center space-x-2">
+					<label for="kids" class="text-sm font-medium whitespace-nowrap">KIDS (per adult):</label>
+					<Input type="number" id="kids" bind:value={kids} min="0" step="1" class="w-full" />
 				</div>
-				<div>
-					<label for="generations" class="block text-sm font-medium mb-2">GENERATIONS</label>
-					<Input type="number" id="generations" bind:value={generations} min="1" step="1" />
+				<div class="grid grid-cols-2 items-center space-x-2">
+					<label for="generations" class="text-sm font-medium whitespace-nowrap">GENERATIONS:</label>
+					<Input type="number" id="generations" bind:value={generations} min="1" step="1" class="w-full" />
 				</div>
-				<div>
-					<label for="birthAge" class="block text-sm font-medium mb-2">AGE (when kids are born)</label>
-					<Input type="number" id="birthAge" bind:value={birthAge} min="0" step="1" />
+				<div class="grid grid-cols-2 items-center space-x-2">
+					<label for="birthAge" class="text-sm font-medium whitespace-nowrap">AGE (when kids are born):</label>
+					<Input type="number" id="birthAge" bind:value={birthAge} min="0" step="1" class="w-full" />
 				</div>
 			</div>
 		</CardContent>
 	</Card>
 
 	<Card>
-		<CardContent>
+		<CardContent class="p-3">
 			<p class="text-2xl font-bold text-center">
 				The total population after <span class="text-blue-600">{(generations - 1) * birthAge}</span>
 				years is
-				<span class="text-green-600">{lastThreePopulation.toLocaleString("en-US")}</span>
+				<span class="text-green-600">{lastThreePopulation.toLocaleString("de-DE", { maximumFractionDigits: 0 })}</span>
 				humans.
 			</p>
 			<p class="text-sm text-gray-500 text-center mt-2">- last three generations count -</p>
@@ -169,22 +162,22 @@
 
 	<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 		<Card>
-			<CardContent>
+			<CardContent class="p-3">
 				<div class="overflow-auto max-h-[50vh]">
-					<TableHeader class="sticky top-0 bg-white z-10">
-						<TableRow>
-							<TableHead>Generation</TableHead>
-							<TableHead>New humans per generation</TableHead>
-							<TableHead>Total humans ever born</TableHead>
-						</TableRow>
-					</TableHeader>
 					<Table>
+						<TableHeader class="sticky top-0 bg-white z-10">
+							<TableRow>
+								<TableHead class="text-sm text-center">Generation</TableHead>
+								<TableHead class="text-sm text-center">New humans per generation</TableHead>
+								<TableHead class="text-sm text-center">Total humans ever born</TableHead>
+							</TableRow>
+						</TableHeader>
 						<TableBody>
 							{#each populationPerGeneration as { generation, currentGenerationPopulation, population }}
 								<TableRow>
-									<TableCell>{generation}</TableCell>
-									<TableCell>{currentGenerationPopulation.toLocaleString("en-US")}</TableCell>
-									<TableCell>{population.toLocaleString("en-US")}</TableCell>
+									<TableCell class="text-right">{generation}</TableCell>
+									<TableCell class="text-right">{currentGenerationPopulation.toLocaleString("de-DE", { maximumFractionDigits: 0 })}</TableCell>
+									<TableCell class="text-right">{population.toLocaleString("de-DE", { maximumFractionDigits: 0 })}</TableCell>
 								</TableRow>
 							{/each}
 						</TableBody>
@@ -192,12 +185,12 @@
 				</div>
 			</CardContent>
 		</Card>
-	
+
 		<Card>
-			<CardHeader>
-				<CardTitle>Population Growth Chart</CardTitle>
+			<CardHeader class="p-3">
+				<CardTitle>Population Growth Chart (Logarithmic Scale)</CardTitle>
 			</CardHeader>
-			<CardContent>
+			<CardContent class="p-3">
 				<div id="chart"></div>
 			</CardContent>
 		</Card>
