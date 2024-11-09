@@ -1,14 +1,30 @@
 <script>
 	import { Input } from "$lib/components/ui/input";
+	import { Button } from "$lib/components/ui/button";
 	import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "$lib/components/ui/table";
 	import { Card, CardContent, CardHeader, CardTitle } from "$lib/components/ui/card";
+	import { Plus, Minus } from "lucide-svelte";;
 	import { onMount, onDestroy } from "svelte";
 	import ApexCharts from "apexcharts";
+	import { translations } from "$lib/translations.js";
 
+	let language = navigator.language;
 	let start = $state(2);
 	let kids = $state(2);
 	let birthAge = $state(20);
 	let generations = $state(1);
+
+	function increment(variable) {
+		if (variable === "kids") kids++;
+		if (variable === "generations") generations++;
+		if (variable === "birthAge") birthAge++;
+	}
+
+	function decrement(variable) {
+		if (variable === "kids" && kids > 0) kids--;
+		if (variable === "generations" && generations > 1) generations--;
+		if (variable === "birthAge" && birthAge > 0) birthAge--;
+	}
 
 	let populationPerGeneration = $derived.by(() => {
 		const result = [
@@ -40,7 +56,8 @@
 
 	$effect(() => {
 		if (chart) {
-			const seriesData = populationPerGeneration
+			let values = populationPerGeneration;
+			let seriesData = populationPerGeneration
 				.map((gen, index) => {
 					const gencount = gen.currentGenerationPopulation + (populationPerGeneration[index + 1]?.currentGenerationPopulation || 0) + (populationPerGeneration[index + 2]?.currentGenerationPopulation || 0);
 					return gencount;
@@ -48,34 +65,50 @@
 				.filter((val) => val !== null)
 				.reverse();
 
+			if (seriesData.length > 35) {
+				seriesData.splice(0, 30);
+				values.reverse().splice(0, 30);
+				values = values.reverse();
+			} else if (seriesData.length > 25) {
+				seriesData.splice(0, 20);
+				values.reverse().splice(0, 20);
+				values = values.reverse();
+			} else if (seriesData.length > 15) {
+				seriesData.splice(0, 10);
+				values.reverse().splice(0, 10)
+				values = values.reverse();
+			}
+			console.log(seriesData, values);
+
 			chart.updateOptions({
 				xaxis: {
-					categories: populationPerGeneration
+					categories: values
 						.slice(-seriesData.length)
 						.map((gen) => {
-							const years = generations * birthAge;
-							const curYears = gen.generation * birthAge;
-							if (years >= 600) {
-								if (curYears % 100 === 0) {
-									return gen.generation * birthAge;
-								} else {
-									return "";
-								}
-							} else if (years >= 300) {
-								if (curYears % 40 === 0) {
-									return gen.generation * birthAge;
-								} else {
-									return "";
-								}
-							} else {
-								return gen.generation * birthAge;
-							}
+							// const years = generations * birthAge;
+							// const curYears = gen.generation * birthAge;
+							// if (years >= 600) {
+							// 	if (curYears % 100 === 0) {
+							// 		return gen.generation * birthAge;
+							// 	} else {
+							// 		return "";
+							// 	}
+							// } else if (years >= 300) {
+							// 	if (curYears % 40 === 0) {
+							// 		return gen.generation * birthAge;
+							// 	} else {
+							// 		return "";
+							// 	}
+							// } else {
+							// 	return gen.generation * birthAge;
+							// }
+							return gen.generation * birthAge;
 						})
 						.reverse(),
 				},
 				series: [
 					{
-						name: "Population (Last 3 Generations)",
+						name: "Population",
 						data: seriesData,
 					},
 				],
@@ -89,9 +122,10 @@
 				type: "line",
 				height: 350,
 			},
+			colors: ["#f97316"],
 			series: [
 				{
-					name: "Population (Last 3 Generations)",
+					name: "Population",
 					data: [],
 				},
 			],
@@ -126,23 +160,33 @@
 </script>
 
 <div class="container mx-auto p-4 space-y-6">
+	<h1 class="font-bold text-2xl">{translations['Population Growth Calculator'][language]}</h1>
 	<Card>
-		<CardHeader class="p-3">
-			<CardTitle>Population Growth Calculator</CardTitle>
-		</CardHeader>
 		<CardContent class="p-3">
-			<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-				<div class="grid grid-cols-2 items-center space-x-2">
-					<label for="kids" class="text-sm font-medium whitespace-nowrap">KIDS (per adult):</label>
-					<Input type="number" id="kids" bind:value={kids} min="0" step="1" class="w-full" />
+			<div class="grid grid-cols-1 lg:grid-cols-3 gap-y-4 gap-x-8">
+				<div class="flex items-center space-x-2">
+					<label for="kids" class="text-sm font-medium whitespace-nowrap" style="flex-grow: 1;">{translations['KIDS (per adult)'][language]}:</label>
+					<div class="flex items-center">
+						<Input type="number" id="kids" bind:value={kids} min="0" step="1" class="w-20" />
+						<Button onclick={() => increment("kids")} class="ml-1 p-2"><Plus size={16} /></Button>
+						<Button onclick={() => decrement("kids")} class="ml-1 p-2"><Minus size={16} /></Button>
+					</div>
 				</div>
-				<div class="grid grid-cols-2 items-center space-x-2">
-					<label for="generations" class="text-sm font-medium whitespace-nowrap">GENERATIONS:</label>
-					<Input type="number" id="generations" bind:value={generations} min="1" step="1" class="w-full" />
+				<div class="flex items-center space-x-2">
+					<label for="generations" class="text-sm font-medium whitespace-nowrap" style="flex-grow: 1;">{translations['GENERATIONS'][language]}:</label>
+					<div class="flex items-center">
+						<Input type="number" id="generations" bind:value={generations} min="1" step="1" class="w-20" />
+						<Button onclick={() => increment("generations")} class="ml-1 p-2"><Plus size={16} /></Button>
+						<Button onclick={() => decrement("generations")} class="ml-1 p-2"><Minus size={16} /></Button>
+					</div>
 				</div>
-				<div class="grid grid-cols-2 items-center space-x-2">
-					<label for="birthAge" class="text-sm font-medium whitespace-nowrap">AGE (when kids are born):</label>
-					<Input type="number" id="birthAge" bind:value={birthAge} min="0" step="1" class="w-full" />
+				<div class="flex items-center space-x-2">
+					<label for="birthAge" class="text-sm font-medium whitespace-nowrap" style="flex-grow: 1;">{translations['AGE (when kids are born)'][language]}:</label>
+					<div class="flex items-center">
+						<Input type="number" id="birthAge" bind:value={birthAge} min="0" step="1" class="w-20" />
+						<Button onclick={() => increment("birthAge")} class="ml-1 p-2"><Plus size={16} /></Button>
+						<Button onclick={() => decrement("birthAge")} class="ml-1 p-2"><Minus size={16} /></Button>
+					</div>
 				</div>
 			</div>
 		</CardContent>
@@ -151,12 +195,12 @@
 	<Card>
 		<CardContent class="p-3">
 			<p class="text-2xl font-bold text-center">
-				The total population after <span class="text-blue-600">{(generations - 1) * birthAge}</span>
-				years is
-				<span class="text-green-600">{lastThreePopulation.toLocaleString("de-DE", { maximumFractionDigits: 0 })}</span>
-				humans.
+				{translations['The total population after'][language]} <span class="text-primary">{(generations - 1) * birthAge}</span>
+				{translations['years is'][language]}
+				<span class="text-primary">{lastThreePopulation.toLocaleString("de-DE", { maximumFractionDigits: 0 })}</span>
+				{translations['humans'][language]}.
 			</p>
-			<p class="text-sm text-gray-500 text-center mt-2">- last three generations count -</p>
+			<p class="text-sm text-gray-500 text-center mt-2">- {translations['last three generations count'][language]} -</p>
 		</CardContent>
 	</Card>
 
@@ -164,20 +208,20 @@
 		<Card>
 			<CardContent class="p-3">
 				<div class="overflow-auto max-h-[50vh]">
+					<TableHeader class="sticky top-0 bg-white z-10" style="display: block;">
+						<TableRow class="flex justify-end">
+							<TableHead class="text-sm text-right">Generation</TableHead>
+							<TableHead class="text-sm text-right" style="flex-grow: 1;">{translations['New humans per generation'][language]}</TableHead>
+							<TableHead class="text-sm text-right" style="flex-grow: 1;">{translations['Total humans ever born'][language]}</TableHead>
+						</TableRow>
+					</TableHeader>
 					<Table>
-						<TableHeader class="sticky top-0 bg-white z-10">
-							<TableRow>
-								<TableHead class="text-sm text-center">Generation</TableHead>
-								<TableHead class="text-sm text-center">New humans per generation</TableHead>
-								<TableHead class="text-sm text-center">Total humans ever born</TableHead>
-							</TableRow>
-						</TableHeader>
 						<TableBody>
 							{#each populationPerGeneration as { generation, currentGenerationPopulation, population }}
-								<TableRow>
+								<TableRow class="flex justify-end">
 									<TableCell class="text-right">{generation}</TableCell>
-									<TableCell class="text-right">{currentGenerationPopulation.toLocaleString("de-DE", { maximumFractionDigits: 0 })}</TableCell>
-									<TableCell class="text-right">{population.toLocaleString("de-DE", { maximumFractionDigits: 0 })}</TableCell>
+									<TableCell class="text-right" style="flex-grow: 1;">{currentGenerationPopulation.toLocaleString("de-DE", { maximumFractionDigits: 0 })}</TableCell>
+									<TableCell class="text-right"style="flex-grow: 1;">{population.toLocaleString("de-DE", { maximumFractionDigits: 0 })}</TableCell>
 								</TableRow>
 							{/each}
 						</TableBody>
@@ -188,7 +232,7 @@
 
 		<Card>
 			<CardHeader class="p-3">
-				<CardTitle>Population Growth Chart (Logarithmic Scale)</CardTitle>
+				<CardTitle>{translations['Population Growth Chart'][language]}</CardTitle>
 			</CardHeader>
 			<CardContent class="p-3">
 				<div id="chart"></div>
